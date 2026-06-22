@@ -1,0 +1,22 @@
+# Standalone deployment for "Home Assistant in a container" / HA Core setups.
+# For Home Assistant OS, install via the Add-on Store instead (see addon-core/README.md).
+#
+# Fill in the environment variables for your Home Assistant instance below.
+services:
+  ha-energy-dashboard:
+    image: ghcr.io/kai-at-topas/ha-energy-dashboard:latest
+    container_name: ha-energy-dashboard
+    restart: unless-stopped
+    ports:
+      - "9150:9150"
+    environment:
+      # Long-lived access token from your HA profile (Security section).
+      SUPERVISOR_TOKEN: "<your-long-lived-token>"
+      # REST + WebSocket base URLs of your HA instance.
+      HA_BASE_URL: "http://homeassistant:8123"
+      HA_WS_URL: "ws://homeassistant:8123/api/websocket"
+      # Config persistence inside the container.
+      CONFIG_PATH: "/data/options.json"
+    volumes:
+      - ./data:/data
+      - ./config:/config

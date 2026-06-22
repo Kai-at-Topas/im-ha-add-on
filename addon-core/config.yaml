@@ -1,0 +1,43 @@
+# Home Assistant Add-on Configuration
+name: "IM Energy Dashboard"
+description: "Energy management dashboard for Home Assistant with IM integration"
+version: "0.1.0"
+slug: "ha-energy-dashboard"
+url: "https://github.com/Kai-at-Topas/im-ha-add-on"
+# Prebuilt multi-arch images are pulled from GHCR (built by .github/workflows/build.yml).
+# The {arch} placeholder is substituted by the Supervisor (amd64 / aarch64 / armv7).
+# Note: GHCR namespaces are always lowercase.
+image: "ghcr.io/kai-at-topas/{arch}-ha-energy-dashboard"
+init: false
+arch:
+  - amd64
+  - aarch64
+  - armv7
+hassio_api: true
+ingress: true
+ingress_port: 9150
+panel_icon: "mdi:chart-line"
+ports:
+  9150/tcp: null
+options:
+  weather_entity: ""
+  power_entity: ""
+  energy_entity: ""
+  mqtt_opt_in: false
+  mqtt_host: ""
+  mqtt_port: 1883
+  mqtt_user: ""
+  mqtt_password: ""
+  mqtt_topic: ""
+schema:
+  weather_entity: str
+  power_entity: str
+  energy_entity: str
+  cost_per_kwh: float?
+  annual_basic_price: float?
+  mqtt_opt_in: bool
+  mqtt_host: str
+  mqtt_port: int?
+  mqtt_user: str
+  mqtt_password: str
+  mqtt_topic: str

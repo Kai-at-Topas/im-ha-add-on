@@ -1,0 +1,15 @@
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+addon-core/.venv/
+addon-core/.pytest_cache/
+
+# Node
+frontend/node_modules/
+
+# Rebuilt inside Docker — no need to transfer
+frontend/dist/
+
+# Git metadata
+.git/
