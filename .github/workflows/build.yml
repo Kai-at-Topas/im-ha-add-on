@@ -1,0 +1,126 @@
+name: Build & publish add-on images
+
+# Publishes the multi-arch images that the Home Assistant Supervisor pulls.
+#
+# config.yaml uses image: "ghcr.io/<OWNER>/{arch}-ha-energy-dashboard" — the
+# Supervisor substitutes {arch} (amd64 / aarch64 / armv7) and pulls a per-arch
+# image. This workflow therefore publishes one image *per HA arch* with that
+# exact naming, plus a single multi-arch manifest (ghcr.io/<OWNER>/
+# ha-energy-dashboard) for the standalone docker-compose.yml.
+#
+# Trigger: pushing a version tag, e.g. `git tag v0.1.0 && git push origin v0.1.0`.
+# After the first run, set the GHCR packages to Public so HA can pull them
+# without credentials (see PUBLISHING.md).
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # One image per Home Assistant architecture, named "{arch}-ha-energy-dashboard"
+  # to match the config.yaml image: template.
+  per-arch:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ha_arch: amd64
+            platform: linux/amd64
+          - ha_arch: aarch64
+            platform: linux/arm64
+          - ha_arch: armv7
+            platform: linux/arm/v7
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve owner (lowercase) and version
+        id: meta
+        run: |
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" == v* ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push (${{ matrix.ha_arch }})
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/${{ matrix.ha_arch }}-ha-energy-dashboard:${{ steps.meta.outputs.version }}
+            ghcr.io/${{ steps.meta.outputs.owner }}/${{ matrix.ha_arch }}-ha-energy-dashboard:latest
+          cache-from: type=gha,scope=${{ matrix.ha_arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.ha_arch }}
+
+  # Single multi-arch manifest for the standalone docker-compose.yml users.
+  manifest:
+    runs-on: ubuntu-latest
+    needs: per-arch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve owner (lowercase) and version
+        id: meta
+        run: |
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" == v* ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push multi-arch manifest
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ steps.meta.outputs.owner }}/ha-energy-dashboard:${{ steps.meta.outputs.version }}
+            ghcr.io/${{ steps.meta.outputs.owner }}/ha-energy-dashboard:latest
+          cache-from: |
+            type=gha,scope=amd64
+            type=gha,scope=aarch64
+            type=gha,scope=armv7
