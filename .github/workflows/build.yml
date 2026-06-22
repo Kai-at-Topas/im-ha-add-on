@@ -3,14 +3,14 @@ name: Build & publish add-on images
 # Publishes the multi-arch images that the Home Assistant Supervisor pulls.
 #
 # config.yaml uses image: "ghcr.io/<OWNER>/{arch}-ha-energy-dashboard" — the
-# Supervisor substitutes {arch} (amd64 / aarch64 / armv7) and pulls a per-arch
+# Supervisor substitutes {arch} (amd64 / aarch64) and pulls a per-arch
 # image. This workflow therefore publishes one image *per HA arch* with that
 # exact naming, plus a single multi-arch manifest (ghcr.io/<OWNER>/
 # ha-energy-dashboard) for the standalone docker-compose.yml.
 #
 # Trigger: pushing a version tag, e.g. `git tag v0.1.0 && git push origin v0.1.0`.
 # After the first run, set the GHCR packages to Public so HA can pull them
-# without credentials (see PUBLISHING.md).
+# without credentials.
 
 on:
   push:
@@ -35,11 +35,9 @@ jobs:
             platform: linux/amd64
           - ha_arch: aarch64
             platform: linux/arm64
-          - ha_arch: armv7
-            platform: linux/arm/v7
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Resolve owner (lowercase) and version
         id: meta
@@ -84,7 +82,7 @@ jobs:
     needs: per-arch
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Resolve owner (lowercase) and version
         id: meta
@@ -114,7 +112,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64
           push: true
           provenance: false
           tags: |
@@ -123,4 +121,3 @@ jobs:
           cache-from: |
             type=gha,scope=amd64
             type=gha,scope=aarch64
-            type=gha,scope=armv7

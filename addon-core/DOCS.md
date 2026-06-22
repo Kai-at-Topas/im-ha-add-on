@@ -48,7 +48,7 @@ across four rows:
 | `mqtt_password` | string | MQTT password. |
 | `mqtt_topic` | string | Target MQTT topic. |
 
-> The external MQTT delivery backend is delivered in version 0.1.1; these
+> The external MQTT delivery backend is delivered in version 0.2.0; these
 > fields configure it ahead of time.
 
 These options can be edited from the add-on configuration tab or from the

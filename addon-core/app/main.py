@@ -35,7 +35,7 @@ from app.services.energy_integrator import (
 from app.services.ha_stream import ha_stream_service
 
 # Keep in sync with addon-core/config.yaml
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 INTEGRATION_INTERVAL = 60  # seconds between live integration ticks
 

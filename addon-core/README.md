@@ -40,7 +40,7 @@ they are also exposed as add-on options:
 | `cost_per_kwh` | Optional electricity price (€/kWh). Enables cost tiles on the dashboard. |
 | `annual_basic_price` | Optional fixed annual price component (€/year). |
 | `mqtt_opt_in` | Enables external data synchronization (off by default). |
-| `mqtt_host` / `mqtt_port` / `mqtt_user` / `mqtt_password` / `mqtt_topic` | MQTT broker connection details (used only when opted in; full delivery backend arrives in 0.1.1). |
+| `mqtt_host` / `mqtt_port` / `mqtt_user` / `mqtt_password` / `mqtt_topic` | MQTT broker connection details (used only when opted in; full delivery backend arrives in 0.2.0). |
 
 ## Privacy
 

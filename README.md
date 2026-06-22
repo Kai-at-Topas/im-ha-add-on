@@ -9,7 +9,7 @@ for external data synchronization.
 - **Dual-Target Frontend:** Compiled for both a full-screen Ingress App and a Custom Lovelace Card.
 - **Configurable:** Live entity selection populated directly from your Home Assistant instance.
 - **Compliant:** Strict legal opt-in page before any external data synchronization.
-- **Streaming:** Normalizes and streams data to an external MQTT broker (opt-in; the full MQTT delivery backend is delivered in version 0.1.1).
+- **Streaming:** Normalizes and streams data to an external MQTT broker (opt-in; the full MQTT delivery backend is delivered in version 0.2.0).
 
 ## Architecture
 - **Backend:** FastAPI (Python 3.12) - Handles configuration management, HA entity proxying, and background WebSocket streaming.
@@ -17,7 +17,7 @@ for external data synchronization.
 
 ## Installation
 
-> Multi-arch images (`amd64`, `aarch64`, `armv7`) are published to GHCR by
+> Multi-arch images (`amd64`, `aarch64`) are published to GHCR by
 > `.github/workflows/build.yml` when a `v*` tag is pushed.
 
 ### Home Assistant OS (Add-on Store)
